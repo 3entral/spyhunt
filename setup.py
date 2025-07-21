@@ -11,16 +11,15 @@ setup(
     description="Comprehensive network scanning and vulnerability assessment tool",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    author="c0deninja",
-    url="https://github.com/gotr00t0day/spyhunt",
-    packages=find_packages(where=".", exclude=["tools", "scripts", "payloads"]),
-    py_modules=["spyhunt", "dnsparser", "install"],
+    author="Pymmdrza (forked from gotr00t0day)",
+    url="https://github.com/Pymmdrza/spyhunt",
+    packages=find_packages(where=".", include=["spyhunt", "spyhunt.*"]),
     package_dir={"": "."},
     include_package_data=True,
     install_requires=requirements,
     entry_points={
         "console_scripts": [
-            "spyhunt=spyhunt:main",
+            "spyhunt=spyhunt.main:main",
         ],
     },
     classifiers=[

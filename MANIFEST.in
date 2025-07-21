@@ -1,5 +1,5 @@
 include README.md
 include requirements.txt
-include spyhunt_logo_cropped.png
-recursive-include modules *.py
-recursive-include payloads *.txt
+recursive-include spyhunt/assets *
+recursive-include spyhunt/payloads *
+recursive-include spyhunt/modules *.py
