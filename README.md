@@ -1,6 +1,4 @@
-# DESCRIPTION
-
-![Spyhunt](https://github.com/gotr00t0day/spyhunt/blob/main/spyhunt_logo_cropped.png)
+# Spy hunter (spyhunt)
 
 Spyhunt is comprehensive network scanning and vulnerability assessment tool. This tool is designed for security professionals and penetration testers to perform comprehensive reconnaissance and vulnerability assessment on target networks and web applications. It combines multiple scanning techniques and integrates various external tools to provide a wide range of information about the target.
 
@@ -59,15 +57,10 @@ Spyhunt is comprehensive network scanning and vulnerability assessment tool. Thi
 # INSTALLATION
 
 ```bash
-
 git clone https://github.com/gotr00t0day/spyhunt.git
-
 cd spyhunt
-
-pip3 install -r requirements.txt
-
+pip3 install -r requirements.txt --break-system-packages
 sudo python3 install.py
-
 ```
 
 # USAGE 
