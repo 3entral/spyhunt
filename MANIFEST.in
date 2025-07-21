@@ -1,0 +1,5 @@
+include README.md
+include requirements.txt
+include spyhunt_logo_cropped.png
+recursive-include modules *.py
+recursive-include payloads *.txt

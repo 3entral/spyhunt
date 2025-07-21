@@ -1,0 +1,13 @@
+[Unit]
+Description=Spyhunt Security Scanner
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/spyhunt
+Restart=on-failure
+User=root
+WorkingDirectory=/opt/spyhunt
+
+[Install]
+WantedBy=multi-user.target

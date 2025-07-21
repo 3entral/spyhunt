@@ -1,6 +1,4 @@
-# DESCRIPTION
-
-![Spyhunt](https://github.com/gotr00t0day/spyhunt/blob/main/spyhunt_logo_cropped.png)
+# Spy hunter (Spyhunt)
 
 Spyhunt is comprehensive network scanning and vulnerability assessment tool. This tool is designed for security professionals and penetration testers to perform comprehensive reconnaissance and vulnerability assessment on target networks and web applications. It combines multiple scanning techniques and integrates various external tools to provide a wide range of information about the target.
 
@@ -61,13 +59,25 @@ Spyhunt is comprehensive network scanning and vulnerability assessment tool. Thi
 ```bash
 
 git clone https://github.com/gotr00t0day/spyhunt.git
-
 cd spyhunt
-
-pip3 install -r requirements.txt
-
+pip3 install -r requirements.txt --break-system-packages
 sudo python3 install.py
 
+```
+
+# PyPI Installation
+
+You can install Spyhunt as a CLI tool from source:
+
+```bash
+pip install .
+```
+
+Or build and install from a wheel:
+
+```bash
+python3 -m build
+pip install dist/spyhunt-*.whl
 ```
 
 # USAGE 
@@ -104,6 +114,12 @@ usage: spyhunt.py [-h] [-sv filename.txt | -wl filename.txt] [-th 25] [-s domain
                   [--spray-userlist SPRAY_USERLIST] [--spray-passlist SPRAY_PASSLIST]
                   [--spray-password SPRAY_PASSWORD] [--smb-target SMB_TARGET]
                   [--smb-user SMB_USER] [--smb-pass SMB_PASS] [--smb-domain SMB_DOMAIN]
+
+```
+
+Spyhunt - Comprehensive Network Scanning and Vulnerability Assessment Tool
+
+```
 
 options:
   -h, --help            show this help message and exit
@@ -305,206 +321,290 @@ SMB Automated Pentest:
   --smb-pass SMB_PASS   Password for credential testing
   --smb-domain SMB_DOMAIN
                         Domain for credential testing
+```
 
-# EXAMPLE
+## Usage Examples
+
 
 Scan for subdomains and save the output to a file.
+
+```bash
+spyhunt -s yahoo.com --save filename.txt
 ```
-python3 spyhunt.py -s yahoo.com --save filename.txt
-```
+
 Scan for subdomains but also extract subdomains from shodan
+
+```bash
+spyhunt -s yahoo.com --shodan API_KEY --save filename.txt
 ```
-python3 spyhunt.py -s yahoo.com --shodan API_KEY --save filename.txt
-```
+
 Scan a file of domains to extract subdomains
+
+```bash
+spyhunt -s domains.txt --save filename.txt
 ```
-python3 spyhunt.py -s domains.txt --save filename.txt
-```
+
 Scan for javascript files 
+
+```bash
+spyhunt -j yahoo.com --depth 4 --save jsfiles.txt -c 20
 ```
-python3 spyhunt.py -j yahoo.com --depth 4 --save jsfiles.txt -c 20
-```
+
 Scan for dns records
+
+```bash
+spyhunt -d domains.txt
 ```
-python3 spyhunt.py -d domains.txt
-```
+
 Scan for FavIcon hashes 
+
+```bash
+spyhunt -fi domain.com
 ```
-python3 spyhunt.py -fi domain.com
-```
+
 Web Crawler
+
+```bash
+spyhunt -wc https://www.domain.com
 ```
-python3 spyhunt.py -wc https://www.domain.com
-```
+
 Web Crawler with depth  
+
+```bash
+spyhunt -wc https://www.domain.com --depth 5
 ```
-python3 spyhunt.py -wc https://www.domain.com --depth 5
-```
+
 Broken Links
+
+```bash
+spyhunt -b https://www.domain.com
 ```
-python3 spyhunt.py -b https://www.domain.com
-```
+
 Cors Misconfiguration Scan
+
+```bash
+spyhunt -co domains.txt
 ```
-python3 spyhunt.py -co domains.txt
-```
+
 Host Header Injection
+
+```bash
+spyhunt -hh domains.txt
 ```
-python3 spyhunt.py -hh domains.txt
-```
+
 Host Header Injection With proxy
+
+```bash
+spyhunt -hh domains.txt --proxy http://proxy.com:8080
 ```
-python3 spyhunt.py -hh domains.txt --proxy http://proxy.com:8080
-```
+
 Directory Brute Forcing
-```
-python3 spyhunt.py --directorybrute domain.com --wordlist list.txt --threads 50 -e php,txt,html -x 404,403
+```bash
+spyhunt --directorybrute domain.com --wordlist list.txt --threads 50 -e php,txt,html -x 404,403
 ```
 Directory Brute Forcing with no extensions
-```
-python3 spyhunt.py --directorybrute domain.com --wordlist list.txt --threads 50 -x 404,403
+```bash
+spyhunt --directorybrute domain.com --wordlist list.txt --threads 50 -x 404,403
 ```
 Scanning a subnet
-```
-python3 spyhunt.py --cidr_notation IP/24 --ports 80,443 --threads 200
+```bash
+spyhunt --cidr_notation IP/24 --ports 80,443 --threads 200
 ```
 Directory Traversal
+```bash
+spyhunt -ph domain.com?id=
+spyhunt -sqli domain.com?id=1
+spyhunt -sqli domain.com?id=1
+spyhunt -xss domain.com?id=1
 ```
-python3 spyhunt.py -ph domain.com?id=
-```   
-sql injection
-```
-python3 spyhunt.py -sqli domain.com?id=1
-```   
-xss
-```
-python3 spyhunt.py -xss domain.com?id=1
-```
+
 JavaScript file scanning for sensitive info
+
+```bash
+spyhunt -javascript domain.com
 ```
-python3 spyhunt.py -javascript domain.com
-```
+
 Javascript endpoint fuzzing
+
+```bash
+spyhunt -javascript_endpoint domains.txt -c 20 --save filename.txt
 ```
-python3 spyhunt.py -javascript_endpoint domains.txt -c 20 --save filename.txt
-```
+
 Modify the headers of the request
+
+```bash
+spyhunt -ch domain.com
 ```
-python3 spyhunt.py -ch domain.com
-```
+
 Parameter bruteforcing
+
+```bash
+spyhunt -pf domain.com
 ```
-python3 spyhunt.py -pf domain.com
-```
+
 Open Redirect
+
+```bash
+spyhunt -or domain.com -v -c 50
 ```
-python3 spyhunt.py -or domain.com -v -c 50
-```
+
 Haveibeenpwned
+
+```bash
+spyhunt -hibp password
 ```
-python3 spyhunt.py -hibp password
-```
+
 Subdomain Takeover
+
+```bash
+spyhunt -st domains.txt --save vuln_subs.txt -c 50 
 ```
-python3 spyhunt.py -st domains.txt --save vuln_subs.txt -c 50 
-```
+
 Auto Recon
+
+```bash
+spyhunt -ar domain.com
 ```
-python3 spyhunt.py -ar domain.com
-```
+
 JSON Web Token
+
+```bash
+spyhunt -jwt Token
 ```
-python3 spyhunt.py -jwt Token
-```
+
 JSON Web Token Modification
+
+```bash
+spyhunt -jwt-modify Token
 ```
-python3 spyhunt.py -jwt-modify Token
-```
+
 AWS S3 Bucket Enumeration
+
+```bash
+spyhunt --s3-scan bucket.com
 ```
-python3 spyhunt.py --s3-scan bucket.com
-```
+
 Heap Dump Analysis 
+
+```bash
+spyhunt --heapdump heapdump_file
 ```
-python3 spyhunt.py --heapdump heapdump_file
-```
+
 Spring Boot Actuator Scan
+```bash
+spyhunt --heapdump_target domain.com
 ```
-python3 spyhunt.py --heapdump_target domain.com
-```
+
 Heap Dump Scan with file
+
+```bash
+spyhunt --heapdump_file heapdump.txt
 ```
-python3 spyhunt.py --heapdump_file heapdump.txt
-```
+
 Cloud Aws Scan
+
+```bash
+spyhunt --aws_scan domain.com
 ```
-python3 spyhunt.py --aws_scan domain.com
-```
+
 Cloud Azure Scan
+
+```bash
+spyhunt --azure_scan domain.com
 ```
-python3 spyhunt.py --azure_scan domain.com
-```
+
 Checks for 403 forbidden domains and saves it to a file 
+
+```bash
+spyhunt --forbidden_pages domains.txt
 ```
-python3 spyhunt.py --forbidden_pages domains.txt
-```
+
 Scan a list of domains to bypass 403 forbidden
+
+```bash
+spyhunt --forbidden_domains domains.txt
 ```
-python3 spyhunt.py --forbidden_domains domains.txt
-```
+
 Scan google storage
+
+```bash
+spyhunt --gcp-scan domain.com
 ```
-python3 spyhunt.py --gcp-scan domain.com
-```
+
 Brute Forcing Login Forms With Proxies
+
+```bash
+spyhunt --brute-user-pass domain.com/login --username_wordlist usernames --password_wordlist passwords --proxy-file proxies.txt --verbose
 ```
-python3 spyhunt.py --brute-user-pass domain.com/login --username_wordlist usernames --password_wordlist passwords --proxy-file proxies.txt --verbose
-```
+
 Brute Forcing Login Forms Witout Proxies
+
+```bash
+spyhunt --brute-user-pass domain.com/login --username_wordlist usernames --password_wordlist passwords --verbose
 ```
-python3 spyhunt.py --brute-user-pass domain.com/login --username_wordlist usernames --password_wordlist passwords --verbose
-```
+
 Nuclei Scan
+
+```bash
+spyhunt --nuclei domain.com --nuclei-template nuclei-templates/cves/CVE-2024-22208.yaml
 ```
-python3 spyhunt.py --nuclei domain.com --nuclei-template nuclei-templates/cves/CVE-2024-22208.yaml
-```
+
 SSRF Params
+
+```bash
+spyhunt --ssrfparams links.txt
 ```
-python3 spyhunt.py --ssrfparams links.txt
-```
+
 FTP Scan
+
+```bash
+spyhunt -fs domain.com
 ```
-python3 spyhunt.py -fs domain.com
-```
+
 FTP Scan with a port
+
+```bash
+spyhunt -fs domain.com:2121
 ```
-python3 spyhunt.py -fs domain.com:2121
-```
+
 FTP Scan with userlist and passlist
+
+```bash
+spyhunt -fs domain.com --ftp-userlist usernames.txt --ftp-passlist passwords.txt
 ```
-python3 spyhunt.py -fs domain.com --ftp-userlist usernames.txt --ftp-passlist passwords.txt
-```
+
 SMB Automated Pentest (Anonymous, Blank Creds, RID Brute)
+
+```bash
+spyhunt --smb_auto --smb-target 10.129.228.111
 ```
-python3 spyhunt.py --smb_auto --smb-target 10.129.228.111
-```
+
 SMB Pentest with Specific Credentials
+
+```bash
+spyhunt --smb_auto --smb-target 10.129.228.111 --smb-user mhope --smb-pass ""
 ```
-python3 spyhunt.py --smb_auto --smb-target 10.129.228.111 --smb-user mhope --smb-pass ""
-```
+
 SMB Pentest with Domain Credentials
+
+```bash
+spyhunt --smb_auto --smb-target 10.129.228.111 --smb-user mhope --smb-pass "" --smb-domain megabank.local
 ```
-python3 spyhunt.py --smb_auto --smb-target 10.129.228.111 --smb-user mhope --smb-pass "" --smb-domain megabank.local
-```
+
 SMB Password Spraying with User and Password Lists
+
+```bash
+spyhunt --smb_auto --smb-target 10.129.228.111 --spray-userlist users.txt --spray-passlist passwords.txt
 ```
-python3 spyhunt.py --smb_auto --smb-target 10.129.228.111 --spray-userlist users.txt --spray-passlist passwords.txt
-```
+
 SMB Password Spraying with Single Password
+
+```bash
+spyhunt --smb_auto --smb-target 10.129.228.111 --spray-userlist users.txt --spray-password "Password1"
 ```
-python3 spyhunt.py --smb_auto --smb-target 10.129.228.111 --spray-userlist users.txt --spray-password "Password1"
-```
+
 SMB Full Pentest (Credentials + Password Spray)
-```
-python3 spyhunt.py --smb_auto --smb-target 10.129.228.111 --smb-user mhope --smb-pass "" --spray-userlist users.txt --spray-password "Welcome1"
+
+```bash
+spyhunt --smb_auto --smb-target 10.129.228.111 --smb-user mhope --smb-pass "" --spray-userlist users.txt --spray-password "Welcome1"
 ```
