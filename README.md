@@ -1,610 +1,116 @@
-# Spy hunter (Spyhunt)
+# Spyhunt (modern refactor)
 
-Spyhunt is comprehensive network scanning and vulnerability assessment tool. This tool is designed for security professionals and penetration testers to perform comprehensive reconnaissance and vulnerability assessment on target networks and web applications. It combines multiple scanning techniques and integrates various external tools to provide a wide range of information about the target.
+This repository contains a modernised and fully tested refactor of the original
+Spyhunt reconnaissance toolkit. The legacy single-file implementation has been
+split into focused modules, given type hints and tests, and wrapped in a small
+command line interface that provides reliable, inspectable results.
 
-## Here's a high-level overview of its functionality
+The refactor keeps the spirit of the project—fast reconnaissance utilities—while
+making the codebase approachable for further contributions. The HTTP and TCP
+scanners are implemented with asynchronous I/O so that they scale well and are
+easily testable.
 
-1. It imports various libraries for network operations, web scraping, and parallel processing.
+## Features
 
-2. The script defines a colorful banner and sets up command-line argument parsing for different scanning options.
+- **HTTP scanner** powered by `aiohttp` with TLS control, redirect handling and
+  lightweight technology fingerprinting (based on headers and simple body
+  heuristics).
+- **TCP port scanner** using asynchronous socket connections with configurable
+  concurrency and timeouts.
+- **Subdomain enumerator** that resolves common prefixes concurrently and can
+  be customised with user supplied wordlists.
+- **Consistent result format**: both scanners return dataclass based results
+  that can be serialised to JSON or printed as human readable text.
+- **Structured CLI**: sub-commands make it clear which capability is being
+  invoked and the output format can be customised or written directly to disk.
+- **Automated tests** ensuring that the scanners and CLI behaviour remain
+  reliable.
 
-3. It includes multiple scanning functions for different purposes:
-   - Subdomain enumeration
-   - Technology detection
-   - DNS record scanning
-   - Web crawling and URL extraction
-   - Favicon hash calculation
-   - Host header injection testing
-   - Security header analysis
-   - Network vulnerability analysis
-   - Wayback machine URL retrieval
-   - JavaScript file discovery
-   - Broken link checking
-   - HTTP request smuggling detection
-   - IP address extraction
-   - Domain information gathering
-   - API endpoint fuzzing
-   - Shodan integration for additional recon
-   - 403 Forbidden bypass attempts
-   - Directory and file brute-forcing
-   - Local File Inclusion (LFI) scanning with Nuclei
-   - Google dorking
-   - Directory Traversal
-   - SQL Injection
-   - XSS
-   - Subdomain Takeover
-   - Web Server Detection
-   - JavaScript file scanning for sensitive info
-   - Auto Recon
-   - Port Scanning
-   - CIDR Notation Scanning
-   - Custom Headers
-   - API Fuzzing
-   - AWS S3 Bucket Enumeration
-   - JSON Web Token Scanning
+## Installation
 
-   
-4. The script uses multithreading and multiprocessing to perform scans efficiently.
-
-5. It includes options to save results to files and customize scan parameters.
-
-6. The tool integrates with external tools and APIs like Shodan, Nmap, and various web-based services.
-
-7. It implements various techniques to bypass restrictions and discover vulnerabilities.
-
-8. The script includes a CIDR notation scanner for port scanning across IP ranges.
-
-# INSTALLATION
+Create a virtual environment and install the package in editable mode:
 
 ```bash
-
-git clone https://github.com/gotr00t0day/spyhunt.git
-cd spyhunt
-pip3 install -r requirements.txt --break-system-packages
-sudo python3 install.py
-
+python -m venv .venv
+source .venv/bin/activate
+pip install -e .
 ```
 
-# PyPI Installation
+The CLI entry point `spyhunt` will be available after installation.
 
-You can install Spyhunt as a CLI tool from source:
+## Usage
+
+### Inspect an HTTP endpoint
 
 ```bash
-pip install .
+spyhunt http https://example.com --format text
 ```
 
-Or build and install from a wheel:
+Important options:
+
+- `--timeout` – request timeout in seconds (default `10`).
+- `--no-redirects` – disable following redirects.
+- `--insecure` – do not validate TLS certificates (useful for testing only).
+- `--hint` – provide manual technology hints; can be repeated.
+- `--format` – choose between `json` and `text` output.
+- `--output` – write the JSON representation to a file in addition to STDOUT.
+
+### Scan TCP ports
 
 ```bash
-python3 -m build
-pip install dist/spyhunt-*.whl
+spyhunt ports 192.0.2.10 --ports 22,80,443,8000-8100 --timeout 1 --concurrency 200
 ```
 
-# USAGE 
+Options:
 
-```
+- `--ports` – comma separated list or range of ports (`80,443,8000-8100`).
+- `--timeout` – connection timeout per port (default `3`).
+- `--concurrency` – number of in-flight connection attempts (default `100`).
 
-usage: spyhunt.py [-h] [-sv filename.txt | -wl filename.txt] [-th 25] [-s domain.com]
-                  [-d domains.txt] [-p domains.txt] [-r domains.txt] [-b domains.txt]
-                  [-pspider domain.com] [-w https://domain.com] [-j domain.com]
-                  [-wc https://domain.com] [-fi https://domain.com] [-fm https://domain.com]
-                  [-na https://domain.com] [-ri IP] [-rim IP] [-sc domain.com]
-                  [-ph domain.txt] [-co domains.txt] [-hh domain.com] [-sh domain.com]
-                  [-ed domain.com] [-smu domain.com] [-ips domain list] [-dinfo domain list]
-                  [-isubs domain list] [-nft domains.txt] [-n domain.com or IP]
-                  [-api domain.com] [-sho domain.com] [-fp domain.com] [-db domain.com]
-                  [-cidr IP/24] [-ps 80,443,8443] [-pai IP/24]
-                  [-xss https://example.com/page?param=value]
-                  [-sqli https://example.com/page?param=value] [-shodan KEY]
-                  [-webserver domain.com] [-javascript domain.com] [-dp DEPTH] [-je file.txt]
-                  [-hibp password] [-pm domain.com] [-ch domain.com] [-or domain.com]
-                  [-asn AS55555] [-st subdomains.txt] [-ar domain.com] [-jwt token]
-                  [-jwt-modify token] [-heapds heapdump.txt] [-heapts domain.com]
-                  [-f_p domain.com] [-nl] [-nc domain.com] [-nct template.yaml] [-v]
-                  [-c CONCURRENCY] [-gs] [-e EXTENSIONS] [-x EXCLUDE] [-u]
-                  [--shodan-api SHODAN_API] [--proxy PROXY] [--proxy-file PROXY_FILE]
-                  [--heapdump HEAPDUMP] [--output-dir OUTPUT_DIR] [-aws domain.com]
-                  [-az domain.com] [--s3-scan S3_SCAN] [-gcp domain.com] [-zt domain.com]
-                  [-ssrfp domains.txt] [--ipinfo TARGET] [--token TOKEN]
-                  [--save-ranges FILENAME] [--forbidden_domains FORBIDDEN_DOMAINS]
-                  [--brute-user-pass domain.com] [--username_wordlist domain.com]
-                  [--password_wordlist domain.com] [-fs HOST[:PORT]]
-                  [--ftp-userlist users.txt] [--ftp-passlist passwords.txt]
-                  [--ftp-proxylist proxies.txt] [--smb_scan] [--smb_auto]
-                  [--spray-userlist SPRAY_USERLIST] [--spray-passlist SPRAY_PASSLIST]
-                  [--spray-password SPRAY_PASSWORD] [--smb-target SMB_TARGET]
-                  [--smb-user SMB_USER] [--smb-pass SMB_PASS] [--smb-domain SMB_DOMAIN]
-
-```
-
-Spyhunt - Comprehensive Network Scanning and Vulnerability Assessment Tool
-
-```
-
-options:
-  -h, --help            show this help message and exit
-  -sv, --save filename.txt
-                        save output to file
-  -wl, --wordlist filename.txt
-                        wordlist to use
-  -th, --threads 25     default 25
-  -p, --probe domains.txt
-                        probe domains.
-  -r, --redirects domains.txt
-                        links getting redirected
-  -fi, --favicon https://domain.com
-                        get favicon hashes
-  -fm, --faviconmulti https://domain.com
-                        get favicon hashes
-  -ri, --reverseip IP   reverse ip lookup
-  -rim, --reverseipmulti IP
-                        reverse ip lookup for multiple ips
-  -sc, --statuscode domain.com
-                        statuscode
-  -sh, --securityheaders domain.com
-                        scan for security headers
-  -ed, --enumeratedomain domain.com
-                        enumerate domains
-  -isubs, --importantsubdomains domain list
-                        extract interesting subdomains from a list like dev, admin, test and etc..
-  -webserver, --webserver_scan domain.com
-                        webserver scan
-  -v, --verbose         Increase output verbosity
-  -c, --concurrency CONCURRENCY
-                        Maximum number of concurrent requests
-  --shodan-api SHODAN_API
-                        Shodan API key for subdomain enumeration
-  --proxy PROXY         Use a proxy (e.g., http://proxy.com:8080)
-  --proxy-file PROXY_FILE
-                        Load proxies from file
-  --heapdump HEAPDUMP   Analyze Java heapdump file
-  --output-dir OUTPUT_DIR
-                        Output directory
-  --forbidden_domains FORBIDDEN_DOMAINS
-                        File containing list of domains to scan for forbidden bypass
-
-Update:
-  -u, --update          Update the script
-
-Nuclei Scans:
-  -nl, --nuclei_lfi     Find Local File Inclusion with nuclei
-  -nc, --nuclei domain.com
-                        scan nuclei on a target
-  -nct, --nuclei_template template.yaml
-                        use a nuclei template
-
-Vulnerability:
-  -b, --brokenlinks domains.txt
-                        search for broken links
-  -ph, --pathhunt domain.txt
-                        check for directory traversal
-  -co, --corsmisconfig domains.txt
-                        cors misconfiguration
-  -hh, --hostheaderinjection domain.com
-                        host header injection
-  -smu, --smuggler domain.com
-                        enumerate domains
-  -fp, --forbiddenpass domain.com
-                        Bypass 403 forbidden
-  -xss, --xss_scan https://example.com/page?param=value
-                        scan for XSS vulnerabilities
-  -sqli, --sqli_scan https://example.com/page?param=value
-                        scan for SQLi vulnerabilities
-  -or, --openredirect domain.com
-                        open redirect
-  -st, --subdomaintakeover subdomains.txt
-                        subdomain takeover
-  -jwt, --jwt_scan token
-                        analyze JWT token for vulnerabilities
-  -jwt-modify, --jwt_modify token
-                        modify JWT token
-  -heapds, --heapdump_file heapdump.txt
-                        file for heapdump scan
-  -heapts, --heapdump_target domain.com
-                        target for heapdump scan
-  -zt, --zone-transfer domain.com
-                        Test for DNS zone transfer vulnerability
-  -ssrfp, --ssrfparams domains.txt
-                        Get SSRF parameters from a list of domains
-
-Crawlers:
-  -pspider, --paramspider domain.com
-                        extract parameters from a domain
-  -w, --waybackurls https://domain.com
-                        scan for waybackurls
-  -j domain.com         find javascript files
-  -wc, --webcrawler https://domain.com
-                        scan for urls and js files
-  -javascript, --javascript_scan domain.com
-                        scan for sensitive info in javascript files
-  -dp, --depth DEPTH    Crawling depth (default: 2)
-  -je, --javascript_endpoints file.txt
-                        extract javascript endpoints
-  -hibp, --haveibeenpwned password
-                        check if the password has been pwned
-
-Passive Recon:
-  -s domain.com         scan for subdomains
-  -d, --dns domains.txt
-                        scan a list of domains for dns records
-  -na, --networkanalyzer https://domain.com
-                        net analyzer
-  -ips, --ipaddresses domain list
-                        get the ips from a list of domains
-  -dinfo, --domaininfo domain list
-                        get domain information like codes,server,content length
-  -sho, --shodan_ domain.com
-                        Recon with shodan
-  -shodan, --shodan_api KEY
-                        shodan api key
-  -gs, --google         Google Search
-
-Fuzzing:
-  -nft, --not_found domains.txt
-                        check for 404 status code
-  -api, --api_fuzzer domain.com
-                        Look for API endpoints
-  -db, --directorybrute domain.com
-                        Brute force filenames and directories
-  -pm, --param_miner domain.com
-                        param miner
-  -ch, --custom_headers domain.com
-                        custom headers
-  -asn, --automoussystemnumber AS55555
-                        asn
-  -ar, --autorecon domain.com
-                        auto recon
-  -f_p, --forbidden_pages domain.com
-                        forbidden pages
-  -e, --extensions EXTENSIONS
-                        Comma-separated list of file extensions to scan
-  -x, --exclude EXCLUDE
-                        Comma-separated list of status codes to exclude
-
-Port Scanning:
-  -n, --nmap domain.com or IP
-                        Scan a target with nmap
-  -cidr, --cidr_notation IP/24
-                        Scan an ip range to find assets and services
-  -ps, --ports 80,443,8443
-                        Port numbers to scan
-  -pai, --print_all_ips IP/24
-                        Print all ips
-
-Bruteforcing:
-  --brute-user-pass domain.com
-                        Bruteforcing username and password input fields
-  --username_wordlist domain.com
-                        Bruteforcing username and password input fields
-  --password_wordlist domain.com
-                        Bruteforcing username and password input fields
-
-FTP Scanning:
-  -fs, --ftp_scan HOST[:PORT]
-                        FTP server to scan (e.g., host or host:port)
-  --ftp-userlist users.txt
-                        Path to a custom username list for FTP bruteforcing
-  --ftp-passlist passwords.txt
-                        Path to a custom password list for FTP bruteforcing
-  --ftp-proxylist proxies.txt
-                        Path to a proxy list for FTP bruteforcing (format: socks5://host:port,
-                        socks4://host:port, http://host:port, or just IP:PORT for SOCKS5; only working
-                        proxies will be used automatically)
-
-Cloud Security:
-  -aws, --aws-scan domain.com
-                        Scan for exposed AWS resources
-  -az, --azure-scan domain.com
-                        Scan for exposed Azure resources
-  --s3-scan S3_SCAN     Scan for exposed S3 buckets
-  -gcp, --gcp-scan domain.com
-                        Scan for exposed GCP Storage resources
-
-IP Information:
-  --ipinfo TARGET       Get IP info for a company domain/IP
-  --token TOKEN         IPinfo API token
-  --save-ranges FILENAME
-                        Save IP ranges to file
-
-SMB Automated Pentest:
-  --smb_scan            Run SMB scan
-  --smb_auto            Run automated SMB pentest
-  --spray-userlist SPRAY_USERLIST
-                        User list for password spraying
-  --spray-passlist SPRAY_PASSLIST
-                        Password list for password spraying
-  --spray-password SPRAY_PASSWORD
-                        Single password to test against userlist
-  --smb-target SMB_TARGET
-                        Target IP or hostname for SMB automation
-  --smb-user SMB_USER   Username for credential testing
-  --smb-pass SMB_PASS   Password for credential testing
-  --smb-domain SMB_DOMAIN
-                        Domain for credential testing
-```
-
-## Usage Examples
-
-
-Scan for subdomains and save the output to a file.
+### Enumerate subdomains
 
 ```bash
-spyhunt -s yahoo.com --save filename.txt
+spyhunt subdomains example.com --format text --include-root
 ```
 
-Scan for subdomains but also extract subdomains from shodan
+Options:
+
+- `--include-root` – also include the apex domain in the results.
+- `--wordlist` – load prefixes from a custom file (one prefix per line).
+- `--timeout` – DNS resolution timeout per candidate (default `2`).
+- `--concurrency` – number of concurrent DNS lookups (default `50`).
+
+## Development workflow
+
+Run the automated test-suite before submitting changes:
 
 ```bash
-spyhunt -s yahoo.com --shodan API_KEY --save filename.txt
+python -m pip install -r requirements.txt
+pytest
 ```
 
-Scan a file of domains to extract subdomains
+The tests spin up local HTTP and TCP servers, so they complete quickly and do
+not depend on external infrastructure.
+
+## Building distributions
+
+The project metadata lives in `pyproject.toml` and follows the modern PyPI
+build configuration. To create a source distribution and wheel run:
 
 ```bash
-spyhunt -s domains.txt --save filename.txt
+python -m pip install build
+python -m build
 ```
 
-Scan for javascript files 
+The generated archives are written to the `dist/` directory and are ready to be
+uploaded with `twine` or another publishing workflow.
 
-```bash
-spyhunt -j yahoo.com --depth 4 --save jsfiles.txt -c 20
-```
+## Extending the tool
 
-Scan for dns records
+New scanners can be implemented by subclassing
+`spyhunt.scanners.base.Scanner` and returning a dataclass result that inherits
+from `spyhunt.scanners.base.ScanResult`. The CLI can then register a new
+sub-command that instantiates and executes the scanner. This structure keeps the
+code modular and easy to reason about, enabling contributions to focus on
+individual features without editing a monolithic script.
 
-```bash
-spyhunt -d domains.txt
-```
-
-Scan for FavIcon hashes 
-
-```bash
-spyhunt -fi domain.com
-```
-
-Web Crawler
-
-```bash
-spyhunt -wc https://www.domain.com
-```
-
-Web Crawler with depth  
-
-```bash
-spyhunt -wc https://www.domain.com --depth 5
-```
-
-Broken Links
-
-```bash
-spyhunt -b https://www.domain.com
-```
-
-Cors Misconfiguration Scan
-
-```bash
-spyhunt -co domains.txt
-```
-
-Host Header Injection
-
-```bash
-spyhunt -hh domains.txt
-```
-
-Host Header Injection With proxy
-
-```bash
-spyhunt -hh domains.txt --proxy http://proxy.com:8080
-```
-
-Directory Brute Forcing
-```bash
-spyhunt --directorybrute domain.com --wordlist list.txt --threads 50 -e php,txt,html -x 404,403
-```
-Directory Brute Forcing with no extensions
-```bash
-spyhunt --directorybrute domain.com --wordlist list.txt --threads 50 -x 404,403
-```
-Scanning a subnet
-```bash
-spyhunt --cidr_notation IP/24 --ports 80,443 --threads 200
-```
-Directory Traversal
-```bash
-spyhunt -ph domain.com?id=
-spyhunt -sqli domain.com?id=1
-spyhunt -sqli domain.com?id=1
-spyhunt -xss domain.com?id=1
-```
-
-JavaScript file scanning for sensitive info
-
-```bash
-spyhunt -javascript domain.com
-```
-
-Javascript endpoint fuzzing
-
-```bash
-spyhunt -javascript_endpoint domains.txt -c 20 --save filename.txt
-```
-
-Modify the headers of the request
-
-```bash
-spyhunt -ch domain.com
-```
-
-Parameter bruteforcing
-
-```bash
-spyhunt -pf domain.com
-```
-
-Open Redirect
-
-```bash
-spyhunt -or domain.com -v -c 50
-```
-
-Haveibeenpwned
-
-```bash
-spyhunt -hibp password
-```
-
-Subdomain Takeover
-
-```bash
-spyhunt -st domains.txt --save vuln_subs.txt -c 50 
-```
-
-Auto Recon
-
-```bash
-spyhunt -ar domain.com
-```
-
-JSON Web Token
-
-```bash
-spyhunt -jwt Token
-```
-
-JSON Web Token Modification
-
-```bash
-spyhunt -jwt-modify Token
-```
-
-AWS S3 Bucket Enumeration
-
-```bash
-spyhunt --s3-scan bucket.com
-```
-
-Heap Dump Analysis 
-
-```bash
-spyhunt --heapdump heapdump_file
-```
-
-Spring Boot Actuator Scan
-```bash
-spyhunt --heapdump_target domain.com
-```
-
-Heap Dump Scan with file
-
-```bash
-spyhunt --heapdump_file heapdump.txt
-```
-
-Cloud Aws Scan
-
-```bash
-spyhunt --aws_scan domain.com
-```
-
-Cloud Azure Scan
-
-```bash
-spyhunt --azure_scan domain.com
-```
-
-Checks for 403 forbidden domains and saves it to a file 
-
-```bash
-spyhunt --forbidden_pages domains.txt
-```
-
-Scan a list of domains to bypass 403 forbidden
-
-```bash
-spyhunt --forbidden_domains domains.txt
-```
-
-Scan google storage
-
-```bash
-spyhunt --gcp-scan domain.com
-```
-
-Brute Forcing Login Forms With Proxies
-
-```bash
-spyhunt --brute-user-pass domain.com/login --username_wordlist usernames --password_wordlist passwords --proxy-file proxies.txt --verbose
-```
-
-Brute Forcing Login Forms Witout Proxies
-
-```bash
-spyhunt --brute-user-pass domain.com/login --username_wordlist usernames --password_wordlist passwords --verbose
-```
-
-Nuclei Scan
-
-```bash
-spyhunt --nuclei domain.com --nuclei-template nuclei-templates/cves/CVE-2024-22208.yaml
-```
-
-SSRF Params
-
-```bash
-spyhunt --ssrfparams links.txt
-```
-
-FTP Scan
-
-```bash
-spyhunt -fs domain.com
-```
-
-FTP Scan with a port
-
-```bash
-spyhunt -fs domain.com:2121
-```
-
-FTP Scan with userlist and passlist
-
-```bash
-spyhunt -fs domain.com --ftp-userlist usernames.txt --ftp-passlist passwords.txt
-```
-
-SMB Automated Pentest (Anonymous, Blank Creds, RID Brute)
-
-```bash
-spyhunt --smb_auto --smb-target 10.129.228.111
-```
-
-SMB Pentest with Specific Credentials
-
-```bash
-spyhunt --smb_auto --smb-target 10.129.228.111 --smb-user mhope --smb-pass ""
-```
-
-SMB Pentest with Domain Credentials
-
-```bash
-spyhunt --smb_auto --smb-target 10.129.228.111 --smb-user mhope --smb-pass "" --smb-domain megabank.local
-```
-
-SMB Password Spraying with User and Password Lists
-
-```bash
-spyhunt --smb_auto --smb-target 10.129.228.111 --spray-userlist users.txt --spray-passlist passwords.txt
-```
-
-SMB Password Spraying with Single Password
-
-```bash
-spyhunt --smb_auto --smb-target 10.129.228.111 --spray-userlist users.txt --spray-password "Password1"
-```
-
-SMB Full Pentest (Credentials + Password Spray)
-
-```bash
-spyhunt --smb_auto --smb-target 10.129.228.111 --smb-user mhope --smb-pass "" --spray-userlist users.txt --spray-password "Welcome1"
-```
