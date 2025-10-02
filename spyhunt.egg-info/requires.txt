@@ -1,0 +1,4 @@
+aiohttp>=3.8
+
+[dev]
+pytest>=7
