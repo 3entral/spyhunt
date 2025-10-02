@@ -1,25 +1,19 @@
-"""Modernised Spyhunt toolkit."""
+"""Scanner implementations exposed by the :mod:`spyhunt` package."""
 
-from .main import main, run, parse_ports
-from .scanners import (
+from .http import HttpScanner, HttpScanResult
+from .ports import PortScanner, PortScanResult
+from .subdomains import (
     DEFAULT_SUBDOMAIN_PREFIXES,
-    HttpScanResult,
-    HttpScanner,
-    PortScanResult,
-    PortScanner,
     ResolvedSubdomain,
     SubdomainScanResult,
     SubdomainScanner,
 )
 
 __all__ = [
-    "main",
-    "run",
-    "parse_ports",
-    "HttpScanResult",
     "HttpScanner",
-    "PortScanResult",
+    "HttpScanResult",
     "PortScanner",
+    "PortScanResult",
     "SubdomainScanner",
     "SubdomainScanResult",
     "ResolvedSubdomain",
