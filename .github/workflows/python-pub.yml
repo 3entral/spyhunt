@@ -78,7 +78,7 @@ jobs:
     name: Publish to PyPI (API Token)
     runs-on: ubuntu-latest
     needs: build
-    if: true
+    if: false
     env:
       TWINE_USERNAME: __token__
       TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
